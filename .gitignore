@@ -1,0 +1,43 @@
+# Dependencies
+node_modules/
+
+# Native addon build output
+build/
+*.node
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime / local state
+*.pid
+*.seed
+*.pid.lock
+
+# OS files
+.DS_Store
+.AppleDouble
+.LSOverride
+Thumbs.db
+ehthumbs.db
+
+# IDE / editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+
+# Unreferenced compiled binary (not used by the server; regenerate locally if needed)
+bin/space_switch
+
+# NOTE: The pre-built AppleScript applets under bin/*.app ARE tracked on purpose —
+# the macOS server executes them at runtime for swipe gestures.

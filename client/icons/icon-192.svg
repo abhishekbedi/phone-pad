@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" width="192" height="192">
+  <rect width="192" height="192" rx="38" fill="#1a1a1a"/>
+  <rect x="24" y="24" width="144" height="144" rx="20" fill="#2a2a2a" stroke="#444" stroke-width="2"/>
+  <!-- Trackpad surface lines -->
+  <line x1="96" y1="40" x2="96" y2="152" stroke="#333" stroke-width="1"/>
+  <line x1="40" y1="96" x2="152" y2="96" stroke="#333" stroke-width="1"/>
+  <!-- Cursor arrow -->
+  <path d="M80 60 L80 120 L95 108 L108 135 L115 132 L102 105 L120 105 Z" fill="#4ade80" stroke="#fff" stroke-width="1.5"/>
+  <!-- Touch circles -->
+  <circle cx="130" cy="70" r="8" fill="none" stroke="#4ade80" stroke-width="2" opacity="0.7"/>
+  <circle cx="145" cy="85" r="6" fill="none" stroke="#4ade80" stroke-width="1.5" opacity="0.5"/>
+</svg>

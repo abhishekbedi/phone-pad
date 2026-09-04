@@ -1,0 +1,48 @@
+{
+  "name": "tracklink",
+  "version": "1.0.0",
+  "description": "Turn your phone into a wireless trackpad for your Mac, Windows, or Linux computer",
+  "main": "server/index.js",
+  "type": "module",
+  "license": "MIT",
+  "author": "Abhishek Bedi",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/abhishekbedi/tracklink.git"
+  },
+  "homepage": "https://github.com/abhishekbedi/tracklink#readme",
+  "bugs": {
+    "url": "https://github.com/abhishekbedi/tracklink/issues"
+  },
+  "keywords": [
+    "trackpad",
+    "remote-mouse",
+    "touchpad",
+    "pwa",
+    "websocket",
+    "gesture",
+    "multitouch",
+    "cross-platform"
+  ],
+  "scripts": {
+    "start": "launchctl bootout gui/$(id -u)/com.abhishekbedi.tracklink 2>/dev/null; lsof -ti:8888 | xargs kill -9 2>/dev/null; sleep 0.5; node server/index.js",
+    "dev": "launchctl bootout gui/$(id -u)/com.abhishekbedi.tracklink 2>/dev/null; lsof -ti:8888 | xargs kill -9 2>/dev/null; sleep 0.5; node server/index.js --dev",
+    "build": "node-gyp rebuild",
+    "install": "node-gyp rebuild || echo 'Native addon build failed — fallback mode will be used'",
+    "service:install": "node scripts/install-service.mjs && launchctl load ~/Library/LaunchAgents/com.abhishekbedi.tracklink.plist",
+    "service:uninstall": "launchctl unload ~/Library/LaunchAgents/com.abhishekbedi.tracklink.plist && rm ~/Library/LaunchAgents/com.abhishekbedi.tracklink.plist",
+    "service:start": "launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.abhishekbedi.tracklink.plist",
+    "service:stop": "launchctl bootout gui/$(id -u)/com.abhishekbedi.tracklink",
+    "service:restart": "launchctl kickstart -k gui/$(id -u)/com.abhishekbedi.tracklink",
+    "service:status": "launchctl list | grep tracklink",
+    "service:logs": "tail -f logs/server.log"
+  },
+  "dependencies": {
+    "ws": "8.18.0",
+    "qrcode": "1.5.4",
+    "node-addon-api": "8.3.0"
+  },
+  "devDependencies": {
+    "node-gyp": "latest"
+  }
+}

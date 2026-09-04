@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#1a1a1a">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.svg">
+  <title>TrackLink</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a1a;
+      color: #e0e0e0;
+      touch-action: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      padding-top: max(12px, env(safe-area-inset-top));
+      background: #111;
+      border-bottom: 1px solid #333;
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e74c3c;
+      transition: background 0.3s ease;
+    }
+
+    .status-dot.connected {
+      background: #2ecc71;
+      box-shadow: 0 0 6px #2ecc71;
+    }
+
+    .server-ip {
+      font-size: 12px;
+      color: #888;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+    }
+
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .trackpad {
+      flex: 1;
+      position: relative;
+      background:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      background-color: #1a1a1a;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    /* Touch indicators */
+    .touch-indicator {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(46, 204, 113, 0.3);
+      border: 2px solid rgba(46, 204, 113, 0.7);
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 5;
+      transition: opacity 0.1s ease;
+    }
+
+    /* Hidden scroll bar - shows on tap */
+    .scroll-bar {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 32px;
+      z-index: 6;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      touch-action: none;
+    }
+
+    .scroll-bar.visible {
+      opacity: 1;
+    }
+
+    .scroll-track {
+      position: absolute;
+      right: 8px;
+      top: 20px;
+      bottom: 20px;
+      width: 4px;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 2px;
+    }
+
+    .scroll-bar.active .scroll-track {
+      background: rgba(46, 204, 113, 0.4);
+    }
+
+    .trackpad::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 60px;
+      height: 60px;
+      border: 2px solid rgba(255,255,255,0.05);
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.15);
+      transform: scale(0);
+      animation: ripple-anim 0.5s ease-out forwards;
+      pointer-events: none;
+    }
+
+    @keyframes ripple-anim {
+      to {
+        transform: scale(2.5);
+        opacity: 0;
+      }
+    }
+
+    .bottom-bar {
+      display: flex;
+      align-items: stretch;
+      padding: 0;
+      padding-bottom: env(safe-area-inset-bottom);
+      background: #111;
+      border-top: 1px solid #333;
+      flex-shrink: 0;
+      z-index: 10;
+    }
+
+    .mouse-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .mouse-btn {
+      flex: 1;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      border-right: 1px solid #333;
+      background: #1a1a1a;
+      color: #ccc;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .mouse-btn:last-child {
+      border-right: none;
+    }
+
+    .mouse-btn:active {
+      background: rgba(46, 204, 113, 0.3);
+    }
+
+    .settings-btn, .top-btn {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      color: #888;
+      font-size: 20px;
+      cursor: pointer;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .settings-btn:active, .top-btn:active {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .top-btn.active {
+      color: #2ecc71;
+    }
+
+    /* Connection Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.hidden {
+      display: none;
+    }
+
+    .modal {
+      background: #222;
+      border: 1px solid #444;
+      border-radius: 16px;
+      padding: 32px 24px;
+      width: 90%;
+      max-width: 340px;
+      text-align: center;
+    }
+
+    .modal h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .modal p {
+      font-size: 13px;
+      color: #888;
+      margin-bottom: 24px;
+    }
+
+    .modal input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #444;
+      border-radius: 10px;
+      background: #1a1a1a;
+      color: #e0e0e0;
+      font-size: 16px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .modal input:focus {
+      border-color: #2ecc71;
+    }
+
+    .modal input::placeholder {
+      color: #555;
+    }
+
+    .modal button {
+      width: 100%;
+      margin-top: 16px;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: #2ecc71;
+      color: #111;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .modal button:active {
+      opacity: 0.8;
+    }
+
+    /* Drag mode indicator */
+    .drag-indicator {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 6px 14px;
+      background: rgba(52, 152, 219, 0.9);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.2s;
+      pointer-events: none;
+    }
+
+    .drag-indicator.active {
+      opacity: 1;
+    }
+
+    /* Settings Panel */
+    .settings-panel {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #222;
+      border-top: 1px solid #444;
+      border-radius: 16px 16px 0 0;
+      padding: 24px;
+      padding-bottom: max(24px, env(safe-area-inset-bottom));
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+      z-index: 50;
+      max-height: 85vh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .settings-panel.open {
+      transform: translateY(0);
+    }
+
+    .settings-panel h3 {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .setting-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .setting-row label {
+      font-size: 14px;
+      color: #ccc;
+    }
+
+    .setting-row input[type="range"] {
+      width: 120px;
+      accent-color: #2ecc71;
+    }
+
+    .setting-row .value {
+      font-size: 13px;
+      color: #888;
+      min-width: 30px;
+      text-align: right;
+    }
+
+    .settings-close {
+      width: 100%;
+      margin-top: 12px;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      background: #333;
+      color: #e0e0e0;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .gesture-bindings {
+      max-height: 280px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .gesture-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #333;
+    }
+
+    .gesture-row:last-child {
+      border-bottom: none;
+    }
+
+    .gesture-label {
+      font-size: 12px;
+      color: #ccc;
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .gesture-select {
+      width: 130px;
+      flex-shrink: 0;
+      padding: 6px 8px;
+      border: 1px solid #444;
+      border-radius: 6px;
+      background: #1a1a1a;
+      color: #e0e0e0;
+      font-size: 11px;
+      outline: none;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .gesture-select:focus {
+      border-color: #2ecc71;
+    }
+
+    /* Landscape layout adjustments */
+    @media (orientation: landscape) {
+      .top-bar {
+        padding: 6px 16px;
+        padding-top: max(6px, env(safe-area-inset-top));
+        padding-left: max(16px, env(safe-area-inset-left));
+        padding-right: max(16px, env(safe-area-inset-right));
+      }
+
+      .bottom-bar {
+        padding: 0;
+        padding-bottom: max(0px, env(safe-area-inset-bottom));
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      }
+
+      .trackpad {
+        padding-left: env(safe-area-inset-left);
+        padding-right: env(safe-area-inset-right);
+      }
+
+      .settings-panel {
+        padding-left: max(24px, env(safe-area-inset-left));
+        padding-right: max(24px, env(safe-area-inset-right));
+      }
+    }
+
+    /* Extra small height — hide top bar text, make bars minimal */
+    @media (max-height: 400px) {
+      .top-bar {
+        padding: 4px 12px;
+      }
+
+      .mouse-btn {
+        height: 36px;
+      }
+
+      .server-ip {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="top-bar">
+      <div class="status">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">Disconnected</span>
+      </div>
+      <div class="top-bar-right">
+        <span class="server-ip" id="serverIpDisplay">—</span>
+        <button class="top-btn" id="fullscreenBtn" aria-label="Toggle Fullscreen">⛶</button>
+        <button class="settings-btn" id="settingsBtn" aria-label="Settings">⚙</button>
+      </div>
+    </div>
+
+    <div class="trackpad" id="trackpad">
+      <div class="drag-indicator" id="dragIndicator">Dragging</div>
+      <div class="scroll-bar" id="scrollBar">
+        <div class="scroll-track"></div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <button class="mouse-btn" id="btnLeft" aria-label="Left Click">L</button>
+      <button class="mouse-btn" id="btnMiddle" aria-label="Middle Click">M</button>
+      <button class="mouse-btn" id="btnRight" aria-label="Right Click">R</button>
+    </div>
+  </div>
+
+  <!-- Connection Modal -->
+  <div class="modal-overlay" id="connectModal">
+    <div class="modal">
+      <h2>Connect to Server</h2>
+      <p>Enter the IP address shown on your Mac</p>
+      <input type="text" id="ipInput" placeholder="192.168.1.x" inputmode="url" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <button id="connectBtn">Connect</button>
+    </div>
+  </div>
+
+  <!-- Settings Panel -->
+  <div class="settings-panel" id="settingsPanel">
+    <h3>Settings</h3>
+    <div class="setting-row">
+      <label>Sensitivity</label>
+      <input type="range" id="sensitivitySlider" min="0.5" max="10" step="0.1" value="1.5">
+      <span class="value" id="sensitivityValue">1.5</span>
+    </div>
+    <div class="setting-row">
+      <label>Scroll Speed</label>
+      <input type="range" id="scrollSlider" min="0.5" max="10" step="0.1" value="1.0">
+      <span class="value" id="scrollValue">1.0</span>
+    </div>
+    <div class="setting-row">
+      <label>Server IP</label>
+      <span class="value" id="settingsIp" style="min-width: auto; font-family: monospace;">—</span>
+    </div>
+
+    <h3 style="margin-top: 20px; margin-bottom: 12px;">Gesture Bindings</h3>
+    <div id="gestureBindings" class="gesture-bindings"></div>
+
+    <button class="settings-close" id="disconnectBtn">Disconnect & Change IP</button>
+    <button class="settings-close" id="settingsClose" style="margin-top: 8px;">Close</button>
+  </div>
+
+  <script>
+    // ============================
+    // Configuration
+    // ============================
+    const CONFIG = {
+      sensitivity: 1.5,
+      scrollSpeed: 1.0,
+      tapTimeout: 200,
+      tapMoveTolerance: 10,
+      dragHoldTime: 500,
+      reconnectDelay: 2000,
+      wsPort: 8888
+    };
+
+    // ============================
+    // State
+    // ============================
+    let ws = null;
+    let serverIp = null;
+    let isConnected = false;
+    let reconnectTimer = null;
+
+    // Touch tracking
+    let touches = {};
+    let touchStartTime = 0;
+    let touchStartPositions = {};
+    let initialFingerCount = 0;
+    let maxFingerCount = 0;
+    let lastMoveTime = 0;
+    let gestureLockedTo = null; // 'pinch2', 'scroll', 'swipe', 'pinch_multi' — locks gesture type once committed
+
+    // Drag state
+    let dragMode = false;
+    let dragHoldTimer = null;
+    let isDragMoving = false;
+
+    // Multi-tap detection (double/triple tap)
+    let tapCount = 0;
+    let tapTimer = null;
+    let lastTapFingers = 0;
+    const MULTI_TAP_INTERVAL = 200; // ms between taps to count as multi-tap
+
+    // Scroll bar state
+    let scrollBarActive = false;
+
+    // Pinch state
+    let lastPinchDistance = null;
+    let lastThreePinchDistance = null;
+
+    // Scroll state
+    let isScrolling = false;
+    let lastScrollPositions = {};
+
+    // Multi-finger swipe state
+    let multiSwipeStartCenter = null;
+    let multiSwipeDelta = { x: 0, y: 0 };
+    let multiSwipeFired = false;
+
+    // ============================
+    // DOM Elements
+    // ============================
+    const trackpad = document.getElementById('trackpad');
+    const statusDot = document.getElementById('statusDot');
+    const statusText = document.getElementById('statusText');
+    const serverIpDisplay = document.getElementById('serverIpDisplay');
+    const connectModal = document.getElementById('connectModal');
+    const ipInput = document.getElementById('ipInput');
+    const connectBtn = document.getElementById('connectBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const settingsClose = document.getElementById('settingsClose');
+    const disconnectBtn = document.getElementById('disconnectBtn');
+    const sensitivitySlider = document.getElementById('sensitivitySlider');
+    const sensitivityValue = document.getElementById('sensitivityValue');
+    const scrollSlider = document.getElementById('scrollSlider');
+    const scrollValue = document.getElementById('scrollValue');
+    const settingsIp = document.getElementById('settingsIp');
+    const dragIndicator = document.getElementById('dragIndicator');
+    const fullscreenBtn = document.getElementById('fullscreenBtn');
+    const btnLeft = document.getElementById('btnLeft');
+    const btnMiddle = document.getElementById('btnMiddle');
+    const btnRight = document.getElementById('btnRight');
+
+    // Touch indicator elements (reused pool)
+    const touchIndicators = {};
+
+    // ============================
+    // WebSocket Connection
+    // ============================
+    function connect(ip) {
+      serverIp = ip;
+      if (ws) {
+        ws.close();
+      }
+
+      try {
+        ws = new WebSocket(`ws://${ip}:${CONFIG.wsPort}`);
+
+        ws.onopen = () => {
+          isConnected = true;
+          updateStatus();
+          connectModal.classList.add('hidden');
+          serverIpDisplay.textContent = ip;
+          settingsIp.textContent = ip;
+          localStorage.setItem('trackpad_server_ip', ip);
+          clearTimeout(reconnectTimer);
+        };
+
+        ws.onclose = () => {
+          isConnected = false;
+          updateStatus();
+          scheduleReconnect();
+        };
+
+        ws.onerror = () => {
+          isConnected = false;
+          updateStatus();
+        };
+      } catch (e) {
+        isConnected = false;
+        updateStatus();
+        scheduleReconnect();
+      }
+    }
+
+    function scheduleReconnect() {
+      clearTimeout(reconnectTimer);
+      if (serverIp) {
+        reconnectTimer = setTimeout(() => connect(serverIp), CONFIG.reconnectDelay);
+      }
+    }
+
+    function disconnect() {
+      clearTimeout(reconnectTimer);
+      serverIp = null;
+      if (ws) {
+        ws.close();
+        ws = null;
+      }
+      isConnected = false;
+      updateStatus();
+      serverIpDisplay.textContent = '—';
+      settingsIp.textContent = '—';
+      localStorage.removeItem('trackpad_server_ip');
+      connectModal.classList.remove('hidden');
+      settingsPanel.classList.remove('open');
+    }
+
+    function send(data) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify(data));
+      }
+    }
+
+    function updateStatus() {
+      if (isConnected) {
+        statusDot.classList.add('connected');
+        statusText.textContent = 'Connected';
+      } else {
+        statusDot.classList.remove('connected');
+        statusText.textContent = serverIp ? 'Reconnecting...' : 'Disconnected';
+      }
+    }
+
+    // ============================
+    // Touch Event Handlers
+    // ============================
+    function getTouchById(touchList, id) {
+      for (let i = 0; i < touchList.length; i++) {
+        if (touchList[i].identifier === id) return touchList[i];
+      }
+      return null;
+    }
+
+    trackpad.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const now = performance.now();
+      touchStartTime = now;
+
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        const t = e.changedTouches[i];
+        touches[t.identifier] = { x: t.clientX, y: t.clientY, startX: t.clientX, startY: t.clientY, startTime: now };
+        touchStartPositions[t.identifier] = { x: t.clientX, y: t.clientY };
+        showTouchIndicator(t.identifier, t.clientX, t.clientY);
+      }
+
+      const fingerCount = e.touches.length;
+      if (fingerCount > maxFingerCount) maxFingerCount = fingerCount;
+      initialFingerCount = fingerCount;
+
+      // Reset pinch/scroll state on new touches
+      if (fingerCount === 2) {
+        const t0 = e.touches[0];
+        const t1 = e.touches[1];
+        lastPinchDistance = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
+        lastScrollPositions = {
+          0: { x: t0.clientX, y: t0.clientY },
+          1: { x: t1.clientX, y: t1.clientY }
+        };
+        isScrolling = false;
+      }
+
+      if (fingerCount >= 3) {
+        // When 3+ fingers are down, cancel any 2-finger gesture lock
+        gestureLockedTo = null;
+        lastPinchDistance = null;
+
+        // Track three-finger pinch
+        const pts = [];
+        for (let i = 0; i < e.touches.length; i++) {
+          pts.push({ x: e.touches[i].clientX, y: e.touches[i].clientY });
+        }
+        lastThreePinchDistance = avgDistance(pts);
+
+        // Initialize swipe tracking
+        const center = getCenter(e.touches);
+        multiSwipeStartCenter = center;
+        multiSwipeDelta = { x: 0, y: 0 };
+        multiSwipeFired = false;
+      }
+
+      // Drag detection: single finger hold
+      // Hold for 300ms = drag & drop (mouse down + drag)
+      // Works for moving windows (hold on title bar) and drag-and-drop
+      clearTimeout(dragHoldTimer);
+      if (fingerCount === 1) {
+        dragHoldTimer = setTimeout(() => {
+          if (Object.keys(touches).length === 1) {
+            dragMode = true;
+            isDragMoving = false;
+            dragIndicator.textContent = 'Dragging';
+            dragIndicator.classList.add('active');
+            send({ type: 'drag_start' });
+          }
+        }, CONFIG.dragHoldTime);
+      }
+    }, { passive: false });
+
+    trackpad.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      const fingerCount = e.touches.length;
+
+      // Update touch indicators for all active touches
+      for (let i = 0; i < e.touches.length; i++) {
+        const t = e.touches[i];
+        updateTouchIndicator(t.identifier, t.clientX, t.clientY);
+      }
+
+      if (fingerCount === 1 && !isScrolling && !scrollBarActive) {
+        // Single finger move — cursor or drag
+        const t = e.touches[0];
+        const prev = touches[t.identifier];
+        if (prev) {
+          const dx = (t.clientX - prev.x) * CONFIG.sensitivity;
+          const dy = (t.clientY - prev.y) * CONFIG.sensitivity;
+
+          if (dragMode) {
+            if (!isDragMoving && (Math.abs(dx) > 1 || Math.abs(dy) > 1)) {
+              isDragMoving = true;
+            }
+            if (isDragMoving) {
+              send({ type: 'drag_move', dx, dy });
+            }
+          } else {
+            // Cancel drag hold if moved significantly
+            const totalDx = t.clientX - prev.startX;
+            const totalDy = t.clientY - prev.startY;
+            if (Math.abs(totalDx) > 5 || Math.abs(totalDy) > 5) {
+              clearTimeout(dragHoldTimer);
+            }
+            send({ type: 'move', dx, dy });
+          }
+
+          touches[t.identifier].x = t.clientX;
+          touches[t.identifier].y = t.clientY;
+        }
+      } else if (fingerCount === 2 && maxFingerCount === 2) {
+        // 2-finger gestures — only when exactly 2 fingers have been used this whole touch
+        clearTimeout(dragHoldTimer);
+        const t0 = e.touches[0];
+        const t1 = e.touches[1];
+        if (!t0 || !t1) { /* skip if touches not available */ }
+        else {
+
+        // Calculate movement for scroll vs pinch detection
+        const dist = Math.hypot(t1.clientX - t0.clientX, t1.clientY - t0.clientY);
+        const distDelta = dist - lastPinchDistance;
+
+        // Average movement of both fingers
+        const prev0 = lastScrollPositions[0] || { x: t0.clientX, y: t0.clientY };
+        const prev1 = lastScrollPositions[1] || { x: t1.clientX, y: t1.clientY };
+
+        const avgDx = ((t0.clientX - prev0.x) + (t1.clientX - prev1.x)) / 2;
+        const avgDy = ((t0.clientY - prev0.y) + (t1.clientY - prev1.y)) / 2;
+
+        // Determine if this is a pinch or scroll
+        // Pinch: fingers move in opposite directions (distance changes significantly)
+        // Scroll: fingers move in same direction
+        // Stricter pinch detection: distance must change more than total movement, and by at least 8px
+        const totalMove = Math.abs(avgDx) + Math.abs(avgDy);
+        const isPinch = Math.abs(distDelta) > totalMove * 1.5 && Math.abs(distDelta) > 8;
+
+        if (isPinch) {
+          gestureLockedTo = 'pinch2';
+          const scale = dist / lastPinchDistance;
+          // Only send if scale change is noticeable
+          if (Math.abs(scale - 1) > 0.01) {
+            const centerX = (t0.clientX + t1.clientX) / 2;
+            const centerY = (t0.clientY + t1.clientY) / 2;
+            send({ type: 'pinch', scale, center_x: centerX, center_y: centerY });
+          }
+        } else {
+          gestureLockedTo = 'scroll';
+          isScrolling = true;
+          const scrollDx = avgDx * CONFIG.scrollSpeed;
+          const scrollDy = avgDy * CONFIG.scrollSpeed;
+          if (Math.abs(scrollDx) > 0.5 || Math.abs(scrollDy) > 0.5) {
+            send({ type: 'scroll', dx: scrollDx, dy: scrollDy });
+          }
+        }
+
+        lastPinchDistance = dist;
+        lastScrollPositions = {
+          0: { x: t0.clientX, y: t0.clientY },
+          1: { x: t1.clientX, y: t1.clientY }
+        };
+
+        // Update individual touch records
+        touches[t0.identifier] = { ...touches[t0.identifier], x: t0.clientX, y: t0.clientY };
+        touches[t1.identifier] = { ...touches[t1.identifier], x: t1.clientX, y: t1.clientY };
+        }
+
+      } else if (fingerCount >= 3 && !gestureLockedTo) {
+        clearTimeout(dragHoldTimer);
+        const pts = [];
+        for (let i = 0; i < e.touches.length; i++) {
+          pts.push({ x: e.touches[i].clientX, y: e.touches[i].clientY });
+          const t = e.touches[i];
+          touches[t.identifier] = { ...touches[t.identifier], x: t.clientX, y: t.clientY };
+        }
+
+        // Calculate center movement (swipe) vs distance change (pinch)
+        const currentCenter = getCenter(e.touches);
+        const currentDist = avgDistance(pts);
+
+        if (multiSwipeStartCenter) {
+          multiSwipeDelta.x = currentCenter.x - multiSwipeStartCenter.x;
+          multiSwipeDelta.y = currentCenter.y - multiSwipeStartCenter.y;
+        }
+
+        const distDelta = lastThreePinchDistance ? Math.abs(currentDist - lastThreePinchDistance) : 0;
+        const swipeDistance = Math.hypot(multiSwipeDelta.x, multiSwipeDelta.y);
+
+        // If fingers are spreading/pinching more than translating, it's a pinch/zoom
+        if (distDelta > swipeDistance * 0.7 && distDelta > 30) {
+          // Page zoom — only with 4 fingers
+          if (fingerCount >= 4 && lastThreePinchDistance && lastThreePinchDistance > 0) {
+            const scale = currentDist / lastThreePinchDistance;
+            if (Math.abs(scale - 1) > 0.02) {
+              send({ type: 'page_zoom', scale });
+            }
+          }
+        } else if (!multiSwipeFired && swipeDistance > 50) {
+          // Multi-finger swipe detected
+          multiSwipeFired = true;
+          let direction;
+          if (Math.abs(multiSwipeDelta.x) > Math.abs(multiSwipeDelta.y)) {
+            direction = multiSwipeDelta.x > 0 ? 'right' : 'left';
+          } else {
+            direction = multiSwipeDelta.y > 0 ? 'down' : 'up';
+          }
+          send({ type: 'swipe', direction, fingers: fingerCount });
+          createRipple(currentCenter.x, currentCenter.y, fingerCount);
+        }
+
+        lastThreePinchDistance = currentDist;
+      }
+    }, { passive: false });
+
+    trackpad.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      const now = performance.now();
+
+      // Remove indicators for ended touches
+      for (let i = 0; i < e.changedTouches.length; i++) {
+        removeTouchIndicator(e.changedTouches[i].identifier);
+      }
+
+      // Handle drag end
+      if (dragMode && e.touches.length === 0) {
+        dragMode = false;
+        isDragMoving = false;
+        dragIndicator.classList.remove('active');
+        send({ type: 'drag_end' });
+        clearTouchState();
+        return;
+      }
+
+      clearTimeout(dragHoldTimer);
+
+      // Check for taps when all fingers are released
+      if (e.touches.length === 0) {
+        const duration = now - touchStartTime;
+        // Use initialFingerCount (fingers at start) not maxFingerCount
+        // This prevents brief extra touches from changing the tap type
+        const fingerCount = initialFingerCount;
+
+        // Verify it was a tap: short duration, minimal movement, no swipe/pinch detected
+        let isTap = duration < CONFIG.tapTimeout && !multiSwipeFired;
+        if (isTap) {
+          for (const id in touchStartPositions) {
+            const start = touchStartPositions[id];
+            const end = touches[id];
+            if (end) {
+              const dist = Math.hypot(end.x - start.x, end.y - start.y);
+              if (dist > CONFIG.tapMoveTolerance) {
+                isTap = false;
+                break;
+              }
+            }
+          }
+        }
+
+        if (isTap && fingerCount >= 1 && fingerCount <= 4) {
+          // Multi-tap detection (double/triple tap)
+          if (fingerCount === lastTapFingers || lastTapFingers === 0) {
+            tapCount++;
+            lastTapFingers = fingerCount;
+          } else {
+            // Different finger count, reset
+            tapCount = 1;
+            lastTapFingers = fingerCount;
+          }
+
+          clearTimeout(tapTimer);
+          tapTimer = setTimeout(() => {
+            // Fire the appropriate tap event
+            if (tapCount === 3) {
+              send({ type: 'triple_tap', fingers: lastTapFingers });
+            } else if (tapCount === 2) {
+              send({ type: 'double_tap', fingers: lastTapFingers });
+            } else {
+              send({ type: 'tap', fingers: lastTapFingers });
+            }
+            tapCount = 0;
+            lastTapFingers = 0;
+          }, MULTI_TAP_INTERVAL);
+
+          // Show ripple feedback
+          const lastTouch = e.changedTouches[0];
+          if (lastTouch) {
+            createRipple(lastTouch.clientX, lastTouch.clientY, fingerCount);
+          }
+        }
+
+        clearTouchState();
+      } else {
+        // Some fingers still down, just clean up ended touches
+        for (let i = 0; i < e.changedTouches.length; i++) {
+          const t = e.changedTouches[i];
+          delete touches[t.identifier];
+          delete touchStartPositions[t.identifier];
+        }
+      }
+    }, { passive: false });
+
+    trackpad.addEventListener('touchcancel', (e) => {
+      e.preventDefault();
+      removeAllTouchIndicators();
+      if (dragMode) {
+        dragMode = false;
+        isDragMoving = false;
+        dragIndicator.classList.remove('active');
+        send({ type: 'drag_end' });
+      }
+      clearTimeout(dragHoldTimer);
+      clearTouchState();
+    }, { passive: false });
+
+    // ============================
+    // Helpers
+    // ============================
+    function clearTouchState() {
+      touches = {};
+      touchStartPositions = {};
+      maxFingerCount = 0;
+      initialFingerCount = 0;
+      lastPinchDistance = null;
+      lastThreePinchDistance = null;
+      lastScrollPositions = {};
+      isScrolling = false;
+      multiSwipeStartCenter = null;
+      multiSwipeDelta = { x: 0, y: 0 };
+      multiSwipeFired = false;
+      gestureLockedTo = null;
+      removeAllTouchIndicators();
+    }
+
+    function avgDistance(points) {
+      if (points.length < 2) return 0;
+      let total = 0;
+      let count = 0;
+      for (let i = 0; i < points.length; i++) {
+        for (let j = i + 1; j < points.length; j++) {
+          total += Math.hypot(points[j].x - points[i].x, points[j].y - points[i].y);
+          count++;
+        }
+      }
+      return total / count;
+    }
+
+    function getCenter(touchList) {
+      let x = 0, y = 0;
+      for (let i = 0; i < touchList.length; i++) {
+        x += touchList[i].clientX;
+        y += touchList[i].clientY;
+      }
+      return { x: x / touchList.length, y: y / touchList.length };
+    }
+
+    function createRipple(x, y, fingers) {
+      const rect = trackpad.getBoundingClientRect();
+      const ripple = document.createElement('div');
+      ripple.classList.add('ripple');
+      const size = 40 + (fingers - 1) * 20;
+      ripple.style.width = size + 'px';
+      ripple.style.height = size + 'px';
+      ripple.style.left = (x - rect.left - size / 2) + 'px';
+      ripple.style.top = (y - rect.top - size / 2) + 'px';
+      trackpad.appendChild(ripple);
+      ripple.addEventListener('animationend', () => ripple.remove());
+    }
+
+    // ============================
+    // Touch Indicators
+    // ============================
+    function showTouchIndicator(id, x, y) {
+      const rect = trackpad.getBoundingClientRect();
+      let el = touchIndicators[id];
+      if (!el) {
+        el = document.createElement('div');
+        el.classList.add('touch-indicator');
+        trackpad.appendChild(el);
+        touchIndicators[id] = el;
+      }
+      el.style.left = (x - rect.left) + 'px';
+      el.style.top = (y - rect.top) + 'px';
+      el.style.opacity = '1';
+    }
+
+    function updateTouchIndicator(id, x, y) {
+      const rect = trackpad.getBoundingClientRect();
+      const el = touchIndicators[id];
+      if (el) {
+        el.style.left = (x - rect.left) + 'px';
+        el.style.top = (y - rect.top) + 'px';
+      }
+    }
+
+    function removeTouchIndicator(id) {
+      const el = touchIndicators[id];
+      if (el) {
+        el.remove();
+        delete touchIndicators[id];
+      }
+    }
+
+    function removeAllTouchIndicators() {
+      for (const id in touchIndicators) {
+        touchIndicators[id].remove();
+        delete touchIndicators[id];
+      }
+    }
+
+    // ============================
+    // Fullscreen Toggle
+    // ============================
+    function toggleFullscreen() {
+      if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        const el = document.documentElement;
+        if (el.requestFullscreen) {
+          el.requestFullscreen();
+        } else if (el.webkitRequestFullscreen) {
+          el.webkitRequestFullscreen();
+        }
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.classList.add('active');
+      } else {
+        if (document.exitFullscreen) {
+          document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+          document.webkitExitFullscreen();
+        }
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.classList.remove('active');
+      }
+    }
+
+    fullscreenBtn.addEventListener('click', toggleFullscreen);
+
+    // Update button state when fullscreen changes externally
+    document.addEventListener('fullscreenchange', () => {
+      if (document.fullscreenElement) {
+        fullscreenBtn.classList.add('active');
+      } else {
+        fullscreenBtn.classList.remove('active');
+      }
+    });
+    document.addEventListener('webkitfullscreenchange', () => {
+      if (document.webkitFullscreenElement) {
+        fullscreenBtn.classList.add('active');
+      } else {
+        fullscreenBtn.classList.remove('active');
+      }
+    });
+
+    // ============================
+    // Scroll Bar (right side)
+    // ============================
+    const scrollBar = document.getElementById('scrollBar');
+    let scrollBarLastY = null;
+    let scrollBarHideTimer = null;
+
+    // Show scroll bar on tap in the right edge area
+    trackpad.addEventListener('touchstart', (e) => {
+      const rect = trackpad.getBoundingClientRect();
+      const touch = e.touches[0];
+      const relX = touch.clientX - rect.left;
+      // If touch starts in the rightmost 40px, activate scroll bar
+      if (relX > rect.width - 40) {
+        scrollBar.classList.add('visible', 'active');
+        scrollBarActive = true;
+        scrollBarLastY = touch.clientY;
+        clearTimeout(scrollBarHideTimer);
+      }
+    }, { passive: true }); // passive: true so it doesn't conflict with main handler
+
+    trackpad.addEventListener('touchmove', (e) => {
+      if (scrollBarActive && e.touches.length === 1) {
+        const touch = e.touches[0];
+        if (scrollBarLastY !== null) {
+          const dy = (touch.clientY - scrollBarLastY) * CONFIG.scrollSpeed * 2;
+          if (Math.abs(dy) > 0.5) {
+            send({ type: 'scroll', dx: 0, dy: dy });
+          }
+          scrollBarLastY = touch.clientY;
+        }
+      }
+    }, { passive: true });
+
+    trackpad.addEventListener('touchend', () => {
+      if (scrollBarActive) {
+        scrollBarActive = false;
+        scrollBarLastY = null;
+        scrollBar.classList.remove('active');
+        // Hide after 2 seconds of inactivity
+        scrollBarHideTimer = setTimeout(() => {
+          scrollBar.classList.remove('visible');
+        }, 2000);
+      }
+    }, { passive: true });
+
+    // ============================
+    // Mouse Buttons (L, M, R)
+    // ============================
+    btnLeft.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      send({ type: 'tap', fingers: 1 });
+    });
+
+    btnMiddle.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      send({ type: 'tap', fingers: 3 });
+    });
+
+    btnRight.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      send({ type: 'tap', fingers: 2 });
+    });
+
+    // ============================
+    // Prevent default gestures globally
+    // ============================
+    document.addEventListener('gesturestart', (e) => e.preventDefault(), { passive: false });
+    document.addEventListener('gesturechange', (e) => e.preventDefault(), { passive: false });
+    document.addEventListener('gestureend', (e) => e.preventDefault(), { passive: false });
+    document.addEventListener('touchmove', (e) => {
+      if (e.target.closest('.modal') || e.target.closest('.settings-panel')) return;
+      e.preventDefault();
+    }, { passive: false });
+
+    // Chrome pinch-zoom fix: prevent default on pointer events that could trigger browser zoom
+    document.addEventListener('pointerdown', (e) => {
+      if (e.target.closest('#trackpad')) {
+        e.target.setPointerCapture(e.pointerId);
+      }
+    }, { passive: true });
+    document.addEventListener('pointermove', (e) => {
+      if (e.target.closest('#trackpad') && e.pointerType === 'touch') {
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    // ============================
+    // Settings
+    // ============================
+    settingsClose.addEventListener('click', () => {
+      settingsPanel.classList.remove('open');
+    });
+
+    disconnectBtn.addEventListener('click', () => {
+      disconnect();
+    });
+
+    sensitivitySlider.addEventListener('input', () => {
+      CONFIG.sensitivity = parseFloat(sensitivitySlider.value);
+      sensitivityValue.textContent = CONFIG.sensitivity.toFixed(1);
+      localStorage.setItem('trackpad_sensitivity', CONFIG.sensitivity);
+    });
+
+    scrollSlider.addEventListener('input', () => {
+      CONFIG.scrollSpeed = parseFloat(scrollSlider.value);
+      scrollValue.textContent = CONFIG.scrollSpeed.toFixed(1);
+      localStorage.setItem('trackpad_scroll_speed', CONFIG.scrollSpeed);
+    });
+
+    // ============================
+    // Gesture Bindings UI
+    // ============================
+    const gestureBindingsEl = document.getElementById('gestureBindings');
+    let gestureConfig = null;
+    let availableActions = null;
+
+    async function loadGestureConfig() {
+      if (!serverIp) return;
+      try {
+        const res = await fetch(`http://${serverIp}:${CONFIG.wsPort}/api/gestures`);
+        const config = await res.json();
+        gestureConfig = config.gestures;
+        availableActions = config.available_actions;
+        renderGestureBindings();
+      } catch (err) {
+        gestureBindingsEl.innerHTML = '<p style="color:#888;font-size:12px;">Could not load gesture config</p>';
+      }
+    }
+
+    function renderGestureBindings() {
+      if (!gestureConfig || !availableActions) return;
+      gestureBindingsEl.innerHTML = '';
+
+      for (const [key, gesture] of Object.entries(gestureConfig)) {
+        const row = document.createElement('div');
+        row.className = 'gesture-row';
+
+        const label = document.createElement('span');
+        label.className = 'gesture-label';
+        label.textContent = gesture.description;
+
+        const select = document.createElement('select');
+        select.className = 'gesture-select';
+        select.dataset.gesture = key;
+
+        for (const [actionKey, actionInfo] of Object.entries(availableActions)) {
+          const opt = document.createElement('option');
+          opt.value = actionKey;
+          opt.textContent = actionInfo.name;
+          if (gesture.action === actionKey) opt.selected = true;
+          select.appendChild(opt);
+        }
+
+        select.addEventListener('change', async () => {
+          try {
+            await fetch(`http://${serverIp}:${CONFIG.wsPort}/api/gestures`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ gesture: key, action: select.value })
+            });
+          } catch (err) {
+            console.error('Failed to update gesture:', err);
+          }
+        });
+
+        row.appendChild(label);
+        row.appendChild(select);
+        gestureBindingsEl.appendChild(row);
+      }
+    }
+
+    // Load gesture config when settings panel is opened
+    settingsBtn.addEventListener('click', () => {
+      settingsPanel.classList.toggle('open');
+      if (settingsPanel.classList.contains('open')) {
+        loadGestureConfig();
+      }
+    });
+
+    // ============================
+    // Connection UI
+    // ============================
+    connectBtn.addEventListener('click', () => {
+      const ip = ipInput.value.trim();
+      if (ip) {
+        connect(ip);
+      }
+    });
+
+    ipInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const ip = ipInput.value.trim();
+        if (ip) {
+          connect(ip);
+        }
+      }
+    });
+
+    // ============================
+    // Initialization
+    // ============================
+    function init() {
+      // Load saved settings
+      const savedSensitivity = localStorage.getItem('trackpad_sensitivity');
+      if (savedSensitivity) {
+        CONFIG.sensitivity = parseFloat(savedSensitivity);
+        sensitivitySlider.value = CONFIG.sensitivity;
+        sensitivityValue.textContent = CONFIG.sensitivity.toFixed(1);
+      }
+
+      const savedScroll = localStorage.getItem('trackpad_scroll_speed');
+      if (savedScroll) {
+        CONFIG.scrollSpeed = parseFloat(savedScroll);
+        scrollSlider.value = CONFIG.scrollSpeed;
+        scrollValue.textContent = CONFIG.scrollSpeed.toFixed(1);
+      }
+
+      // Check URL params for IP
+      const params = new URLSearchParams(window.location.search);
+      const ipParam = params.get('ip');
+
+      if (ipParam) {
+        connectModal.classList.add('hidden');
+        connect(ipParam);
+      } else {
+        // Check localStorage for saved IP
+        const savedIp = localStorage.getItem('trackpad_server_ip');
+        if (savedIp) {
+          connectModal.classList.add('hidden');
+          connect(savedIp);
+        }
+        // Otherwise modal is shown by default
+      }
+    }
+
+    init();
+
+    // Register service worker for PWA installability
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

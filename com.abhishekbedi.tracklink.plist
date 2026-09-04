@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  TrackLink launchd service definition (macOS).
+
+  The paths below are placeholders. The `npm run service:install` script
+  substitutes them with your actual node path and project directory at install
+  time, so you normally do not need to edit this file by hand.
+
+  If you install manually, replace:
+    __NODE_PATH__     with the output of `which node`
+    __PROJECT_DIR__   with the absolute path to this project directory
+-->
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.abhishekbedi.tracklink</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>__NODE_PATH__</string>
+        <string>__PROJECT_DIR__/server/index.js</string>
+    </array>
+
+    <key>WorkingDirectory</key>
+    <string>__PROJECT_DIR__</string>
+
+    <key>RunAtLoad</key>
+    <true/>
+
+    <key>KeepAlive</key>
+    <true/>
+
+    <key>StandardOutPath</key>
+    <string>__PROJECT_DIR__/logs/server.log</string>
+
+    <key>StandardErrorPath</key>
+    <string>__PROJECT_DIR__/logs/server-error.log</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>__NODE_DIR__:/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+</dict>
+</plist>

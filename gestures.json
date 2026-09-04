@@ -1,0 +1,167 @@
+{
+  "version": 1,
+  "gestures": {
+    "tap_1": {
+      "action": "click_left",
+      "description": "Single finger tap"
+    },
+    "tap_2": {
+      "action": "click_right",
+      "description": "Two finger tap"
+    },
+    "tap_3": {
+      "action": "click_middle",
+      "description": "Three finger tap"
+    },
+    "tap_4": {
+      "action": "launchpad",
+      "description": "Four finger tap"
+    },
+    "double_tap_1": {
+      "action": "double_click",
+      "description": "Single finger double tap"
+    },
+    "double_tap_2": {
+      "action": "none",
+      "description": "Two finger double tap"
+    },
+    "triple_tap_1": {
+      "action": "triple_click",
+      "description": "Single finger triple tap"
+    },
+    "triple_tap_2": {
+      "action": "none",
+      "description": "Two finger triple tap"
+    },
+    "swipe_3_up": {
+      "action": "mission_control",
+      "description": "Three finger swipe up"
+    },
+    "swipe_3_down": {
+      "action": "app_expose",
+      "description": "Three finger swipe down"
+    },
+    "swipe_3_left": {
+      "action": "space_right",
+      "description": "Three finger swipe left"
+    },
+    "swipe_3_right": {
+      "action": "space_left",
+      "description": "Three finger swipe right"
+    },
+    "swipe_4_up": {
+      "action": "spotlight",
+      "description": "Four finger swipe up"
+    },
+    "swipe_4_down": {
+      "action": "mission_control",
+      "description": "Four finger swipe down"
+    },
+    "swipe_4_left": {
+      "action": "launchpad",
+      "description": "Four finger swipe left"
+    },
+    "swipe_4_right": {
+      "action": "hot_corner_br",
+      "description": "Four finger swipe right"
+    },
+    "pinch_2": {
+      "action": "zoom",
+      "description": "Two finger pinch zoom"
+    },
+    "pinch_3": {
+      "action": "page_zoom",
+      "description": "Three finger pinch"
+    },
+    "hot_corner_tl": {
+      "action": "none",
+      "description": "Cursor pushed to top-left corner"
+    },
+    "hot_corner_tr": {
+      "action": "mission_control",
+      "description": "Cursor pushed to top-right corner"
+    },
+    "hot_corner_bl": {
+      "action": "none",
+      "description": "Cursor pushed to bottom-left corner"
+    },
+    "hot_corner_br": {
+      "action": "show_desktop",
+      "description": "Cursor pushed to bottom-right corner"
+    }
+  },
+  "available_actions": {
+    "click_left": {
+      "name": "Left Click",
+      "category": "mouse"
+    },
+    "click_right": {
+      "name": "Right Click",
+      "category": "mouse"
+    },
+    "click_middle": {
+      "name": "Middle Click",
+      "category": "mouse"
+    },
+    "double_click": {
+      "name": "Double Click",
+      "category": "mouse"
+    },
+    "triple_click": {
+      "name": "Triple Click (Select Line)",
+      "category": "mouse"
+    },
+    "mission_control": {
+      "name": "Mission Control",
+      "category": "system"
+    },
+    "app_expose": {
+      "name": "App Exposé",
+      "category": "system"
+    },
+    "show_desktop": {
+      "name": "Show Desktop",
+      "category": "system"
+    },
+    "launchpad": {
+      "name": "Launchpad",
+      "category": "system"
+    },
+    "space_left": {
+      "name": "Move Space Left",
+      "category": "spaces"
+    },
+    "space_right": {
+      "name": "Move Space Right",
+      "category": "spaces"
+    },
+    "zoom": {
+      "name": "Zoom In/Out",
+      "category": "zoom"
+    },
+    "page_zoom": {
+      "name": "Page Zoom (Cmd +/-)",
+      "category": "zoom"
+    },
+    "notification_center": {
+      "name": "Notification Center",
+      "category": "system"
+    },
+    "screenshot": {
+      "name": "Screenshot",
+      "category": "system"
+    },
+    "spotlight": {
+      "name": "Spotlight Search",
+      "category": "system"
+    },
+    "lock_screen": {
+      "name": "Lock Screen",
+      "category": "system"
+    },
+    "none": {
+      "name": "Do Nothing",
+      "category": "other"
+    }
+  }
+}

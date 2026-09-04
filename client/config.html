@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TrackLink — Gesture Configuration</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      background: #f5f5f7;
+      color: #1d1d1f;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .header .icon {
+      width: 64px;
+      height: 64px;
+      background: #1a1a1a;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .header .icon svg {
+      width: 36px;
+      height: 36px;
+    }
+
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .header p {
+      color: #6e6e73;
+      font-size: 15px;
+    }
+
+    .section {
+      margin-bottom: 32px;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #6e6e73;
+      padding: 0 16px;
+      margin-bottom: 8px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .gesture-row {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      transition: background 0.15s;
+    }
+
+    .gesture-row:last-child {
+      border-bottom: none;
+    }
+
+    .gesture-row:hover {
+      background: #fafafa;
+    }
+
+    .gesture-icon {
+      font-size: 24px;
+      width: 40px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .gesture-info {
+      flex: 1;
+      padding: 0 12px;
+    }
+
+    .gesture-name {
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .gesture-desc {
+      font-size: 12px;
+      color: #8e8e93;
+      margin-top: 2px;
+    }
+
+    .gesture-action {
+      flex-shrink: 0;
+    }
+
+    .gesture-action select {
+      appearance: none;
+      -webkit-appearance: none;
+      background: #f5f5f7;
+      border: 1px solid #d2d2d7;
+      border-radius: 8px;
+      padding: 8px 32px 8px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #1d1d1f;
+      cursor: pointer;
+      outline: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236e6e73' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      min-width: 160px;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .gesture-action select:focus {
+      border-color: #007aff;
+      box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15);
+    }
+
+    .gesture-action select:hover {
+      border-color: #007aff;
+    }
+
+    .save-bar {
+      position: sticky;
+      bottom: 20px;
+      margin-top: 24px;
+      text-align: center;
+    }
+
+    .save-btn {
+      background: #007aff;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 32px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+    }
+
+    .save-btn:hover {
+      background: #0062cc;
+    }
+
+    .save-btn:active {
+      transform: scale(0.97);
+    }
+
+    .save-btn.saving {
+      background: #34c759;
+    }
+
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-100px);
+      background: #1d1d1f;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      color: #8e8e93;
+      font-size: 13px;
+    }
+
+    .footer a {
+      color: #007aff;
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      text-decoration: underline;
+    }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #34c759;
+      margin-top: 8px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #34c759;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 20px 12px; }
+      .gesture-row { flex-wrap: wrap; }
+      .gesture-action { width: 100%; margin-top: 8px; padding-left: 52px; }
+      .gesture-action select { width: 100%; }
+    }
+
+    .stop-btn {
+      background: #ff3b30;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .stop-btn:hover {
+      background: #d63027;
+    }
+
+    .stop-btn:active {
+      transform: scale(0.97);
+    }
+
+    .stop-btn:disabled {
+      background: #8e8e93;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="icon">
+        <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 8L12 24L17 20L21 29L24 28L20 19L26 19Z" fill="#4ade80" stroke="#fff" stroke-width="1"/>
+          <circle cx="28" cy="12" r="3" fill="none" stroke="#4ade80" stroke-width="1.5" opacity="0.7"/>
+          <circle cx="31" cy="17" r="2" fill="none" stroke="#4ade80" stroke-width="1" opacity="0.5"/>
+        </svg>
+      </div>
+      <h1>TrackLink</h1>
+      <p>Gesture Configuration</p>
+      <div class="status">
+        <span class="status-dot"></span>
+        Server running
+      </div>
+    </div>
+
+    <!-- QR Code Section -->
+    <div class="section">
+      <div class="section-title">Connect Your Phone</div>
+      <div class="card" style="padding: 24px; text-align: center;">
+        <div id="qrCode" style="margin-bottom: 12px;"></div>
+        <p id="connectUrl" style="font-family: 'SF Mono', 'Fira Code', monospace; font-size: 13px; color: #6e6e73; word-break: break-all;">Loading...</p>
+        <p style="font-size: 12px; color: #8e8e93; margin-top: 8px;">Scan QR code or open URL on your phone</p>
+      </div>
+    </div>
+
+    <!-- Server Controls -->
+    <div class="section">
+      <div class="section-title">Server Controls</div>
+      <div class="card" style="padding: 16px;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            <div style="font-size: 15px; font-weight: 500;">Server Status</div>
+            <div id="serverStatus" style="font-size: 12px; color: #34c759; margin-top: 2px;">● Running</div>
+          </div>
+          <button class="stop-btn" id="stopServerBtn" onclick="stopServer()">Stop Server</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="sections"></div>
+
+    <div class="save-bar">
+      <button class="save-btn" id="saveBtn" onclick="saveAll()">Save Changes</button>
+    </div>
+
+    <div class="footer">
+      <p>TrackLink v1.0.0 — <a href="/">Open Trackpad</a> · <a href="https://github.com/abhishekbedi/tracklink">GitHub</a></p>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const GESTURE_ICONS = {
+      tap_1: '👆', tap_2: '✌️', tap_3: '🤟', tap_4: '🖐️',
+      double_tap_1: '👆👆', double_tap_2: '✌️✌️',
+      triple_tap_1: '👆👆👆', triple_tap_2: '✌️✌️✌️',
+      swipe_3_up: '⬆️', swipe_3_down: '⬇️', swipe_3_left: '⬅️', swipe_3_right: '➡️',
+      swipe_4_up: '⏫', swipe_4_down: '⏬', swipe_4_left: '⏪', swipe_4_right: '⏩',
+      pinch_2: '🔍', pinch_3: '🔎',
+      hot_corner_tl: '↖️', hot_corner_tr: '↗️', hot_corner_bl: '↙️', hot_corner_br: '↘️'
+    };
+
+    const GESTURE_GROUPS = {
+      'Taps': ['tap_1', 'tap_2', 'tap_3', 'tap_4'],
+      'Double & Triple Taps': ['double_tap_1', 'double_tap_2', 'triple_tap_1', 'triple_tap_2'],
+      '3-Finger Swipes': ['swipe_3_up', 'swipe_3_down', 'swipe_3_left', 'swipe_3_right'],
+      '4-Finger Swipes': ['swipe_4_up', 'swipe_4_down', 'swipe_4_left', 'swipe_4_right'],
+      'Pinch Gestures': ['pinch_2', 'pinch_3'],
+      'Hot Corners': ['hot_corner_tl', 'hot_corner_tr', 'hot_corner_bl', 'hot_corner_br']
+    };
+
+    let config = null;
+    let actions = null;
+    let pendingChanges = {};
+
+    // ============================
+    // QR Code Generation
+    // ============================
+    async function loadServerInfo() {
+      try {
+        const res = await fetch('/api/server/info');
+        const info = await res.json();
+        document.getElementById('connectUrl').textContent = info.url;
+        generateQRCode(info.url);
+      } catch (e) {
+        document.getElementById('connectUrl').textContent = 'Could not load server info';
+      }
+    }
+
+    function generateQRCode(text) {
+      const qrEl = document.getElementById('qrCode');
+      // Simple QR code using a canvas-based library embedded inline
+      // Use the server's qrcode library via an image endpoint, or generate client-side
+      const img = document.createElement('img');
+      img.src = '/api/qrcode?url=' + encodeURIComponent(text);
+      img.alt = 'QR Code to connect';
+      img.style.width = '200px';
+      img.style.height = '200px';
+      img.style.imageRendering = 'pixelated';
+      img.onerror = () => {
+        qrEl.innerHTML = `<p style="color:#8e8e93;font-size:13px;">QR code unavailable — use URL below</p>`;
+      };
+      qrEl.innerHTML = '';
+      qrEl.appendChild(img);
+    }
+
+    // ============================
+    // Stop Server
+    // ============================
+    async function stopServer() {
+      const btn = document.getElementById('stopServerBtn');
+      const status = document.getElementById('serverStatus');
+
+      if (!confirm('Are you sure you want to stop the server? All connected devices will be disconnected.')) {
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Stopping...';
+
+      try {
+        await fetch('/api/server/stop', { method: 'POST' });
+        status.textContent = '● Stopped';
+        status.style.color = '#ff3b30';
+        btn.textContent = 'Server Stopped';
+        showToast('✓ Server stopped successfully');
+      } catch (e) {
+        // If fetch fails, server probably already stopped
+        status.textContent = '● Stopped';
+        status.style.color = '#ff3b30';
+        btn.textContent = 'Server Stopped';
+        showToast('Server stopped');
+      }
+    }
+
+    async function loadConfig() {
+      try {
+        const [configRes, actionsRes] = await Promise.all([
+          fetch('/api/gestures'),
+          fetch('/api/gestures/actions')
+        ]);
+        config = await configRes.json();
+        actions = await actionsRes.json();
+        render();
+      } catch (e) {
+        showToast('Failed to load config: ' + e.message);
+      }
+    }
+
+    function render() {
+      const sectionsEl = document.getElementById('sections');
+      sectionsEl.innerHTML = '';
+
+      // Group actions by category for optgroups
+      const actionsByCategory = {};
+      for (const [key, info] of Object.entries(actions)) {
+        if (!actionsByCategory[info.category]) actionsByCategory[info.category] = [];
+        actionsByCategory[info.category].push({ key, ...info });
+      }
+
+      const categoryLabels = {
+        mouse: 'Mouse',
+        system: 'System',
+        spaces: 'Spaces & Desktops',
+        zoom: 'Zoom',
+        hot_corners: 'Hot Corners',
+        other: 'Other'
+      };
+
+      for (const [groupName, gestureKeys] of Object.entries(GESTURE_GROUPS)) {
+        const section = document.createElement('div');
+        section.className = 'section';
+        section.innerHTML = `<div class="section-title">${groupName}</div>`;
+
+        const card = document.createElement('div');
+        card.className = 'card';
+
+        for (const key of gestureKeys) {
+          const gesture = config.gestures[key];
+          if (!gesture) continue;
+
+          const row = document.createElement('div');
+          row.className = 'gesture-row';
+
+          let selectOptions = '';
+          for (const [cat, catActions] of Object.entries(actionsByCategory)) {
+            selectOptions += `<optgroup label="${categoryLabels[cat] || cat}">`;
+            for (const a of catActions) {
+              const selected = gesture.action === a.key ? 'selected' : '';
+              selectOptions += `<option value="${a.key}" ${selected}>${a.name}</option>`;
+            }
+            selectOptions += '</optgroup>';
+          }
+
+          row.innerHTML = `
+            <div class="gesture-icon">${GESTURE_ICONS[key] || '•'}</div>
+            <div class="gesture-info">
+              <div class="gesture-name">${gesture.description}</div>
+              <div class="gesture-desc">${key}</div>
+            </div>
+            <div class="gesture-action">
+              <select data-gesture="${key}" onchange="onChange(this)">
+                ${selectOptions}
+              </select>
+            </div>
+          `;
+
+          card.appendChild(row);
+        }
+
+        section.appendChild(card);
+        sectionsEl.appendChild(section);
+      }
+    }
+
+    function onChange(select) {
+      pendingChanges[select.dataset.gesture] = select.value;
+    }
+
+    async function saveAll() {
+      const keys = Object.keys(pendingChanges);
+      if (keys.length === 0) {
+        showToast('No changes to save');
+        return;
+      }
+
+      const btn = document.getElementById('saveBtn');
+      btn.textContent = 'Saving...';
+      btn.classList.add('saving');
+
+      try {
+        for (const gesture of keys) {
+          const action = pendingChanges[gesture];
+          await fetch('/api/gestures', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ gesture, action })
+          });
+        }
+        pendingChanges = {};
+        showToast(`✓ Saved ${keys.length} change${keys.length > 1 ? 's' : ''}`);
+      } catch (e) {
+        showToast('Failed to save: ' + e.message);
+      }
+
+      btn.textContent = 'Save Changes';
+      btn.classList.remove('saving');
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    loadConfig();
+    loadServerInfo();
+  </script>
+</body>
+</html>
