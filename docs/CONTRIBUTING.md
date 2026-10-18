@@ -1,18 +1,18 @@
-# Contributing to TrackLink
+# Contributing to PhonePad
 
-Thanks for your interest in contributing! TrackLink turns your phone into a
+Thanks for your interest in contributing! PhonePad turns your phone into a
 wireless trackpad for your computer, and contributions of all kinds are welcome —
 bug reports, feature ideas, documentation improvements, and code.
 
 ## Code of Conduct
 
 By participating in this project you agree to abide by our
-[Code of Conduct](CODE_OF_CONDUCT.md). Please read it before contributing.
+[Code of Conduct](../CODE_OF_CONDUCT.md). Please read it before contributing.
 
 ## Ways to Contribute
 
-- **Report bugs** — Open an issue using the Bug Report template.
-- **Request features** — Open an issue using the Feature Request template.
+- **Report bugs** — Open a [GitHub issue](https://github.com/abhishekbedi/tracklink/issues) describing the problem, your OS, and steps to reproduce.
+- **Request features** — Open a [GitHub issue](https://github.com/abhishekbedi/tracklink/issues) describing the feature and your use case.
 - **Improve docs** — Fix typos, clarify setup steps, add troubleshooting tips.
 - **Write code** — Fix bugs, add gestures, or improve platform support.
 
@@ -61,19 +61,34 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for a deeper dive.
 ## Coding Guidelines
 
 - Keep the client as a single self-contained HTML file — **no build step** for the client.
-- Follow the existing code style (see `.editorconfig`).
+- Match the existing code style: 2-space indentation, single quotes, semicolons, and ES modules (`import`/`export`).
 - Prefer clear, small, focused changes over large sweeping rewrites.
 - Document any new gestures or actions in the README.
 
 ## Testing
 
-There is no automated test suite yet. Before submitting, please manually verify:
+PhonePad has an end-to-end server smoke test (curl-based, no GUI/permissions
+needed). Run it before submitting:
 
-- The server starts cleanly (`npm run dev`) with no errors.
-- Your change works on at least one platform (state which one in the PR).
-- Existing gestures still behave as expected.
+```bash
+npm test             # starts the server, checks the API/static assets, stops it
+```
 
-If you add a test framework or tests, mention it in your PR — it's very welcome.
+On macOS you can also verify the native addon compiles:
+
+```bash
+npm run build        # node-gyp rebuild → build/Release/mac_input.node
+```
+
+**Continuous integration:** every push and pull request runs
+[`.github/workflows/ci.yml`](../.github/workflows/ci.yml) — `npm ci && npm test`
+on Linux (Node 18/20/22) plus a native-addon build on macOS. Please make sure
+`npm test` passes locally first.
+
+Because the automated suite only covers the HTTP/API surface, also **manually
+verify** input behavior (cursor, taps, scroll, swipes) on at least one platform
+and state which one in your PR. See [`tests/README.md`](../tests/README.md) for
+the manual checklist.
 
 ## Submitting a Pull Request
 

@@ -87,7 +87,8 @@ fi
 
 # ---- start server --------------------------------------------------------
 info "Starting server: node server/index.js"
-( cd "${ROOT}" && node "${SERVER_ENTRY}" >"${LOG}" 2>&1 ) &
+cd "${ROOT}"
+node "${SERVER_ENTRY}" >"${LOG}" 2>&1 &
 SERVER_PID=$!
 
 # Wait up to ~10s for the HTTP API to answer.
@@ -151,6 +152,10 @@ fi
 echo
 echo "Shutdown:"
 kill "${SERVER_PID}" 2>/dev/null
+# Fallback: also release the port in case the process was reparented.
+if command -v lsof >/dev/null 2>&1; then
+  lsof -ti:"${PORT}" 2>/dev/null | xargs kill 2>/dev/null || true
+fi
 # Wait for the process to exit and the port to be released.
 GONE=0
 for _ in $(seq 1 25); do

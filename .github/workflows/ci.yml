@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same ref to save CI minutes.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Fast end-to-end server test on Linux. The native macOS addon is not needed —
+  # the server falls back gracefully — so we skip install scripts (node-gyp) here.
+  test-linux:
+    name: e2e server test (Linux, Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [18, 20, 22]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - name: Install dependencies (skip native build)
+        run: npm ci --ignore-scripts
+
+      - name: Run end-to-end server test
+        run: npm test
+
+  # Verify the native macOS addon compiles, and run the e2e test on macOS too.
+  build-macos:
+    name: native build + e2e (macOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # Full install runs the "install" lifecycle script (node-gyp rebuild).
+      # If the native build fails it falls back (per package.json), so this
+      # won't hard-fail the install step.
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build native addon
+        run: npm run build
+
+      - name: Confirm addon artifact exists
+        run: test -f build/Release/mac_input.node
+
+      - name: Run end-to-end server test
+        run: npm test

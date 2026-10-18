@@ -231,7 +231,7 @@ const httpServer = createServer(async (req, res) => {
       console.log('\n⏹ Server stopped via config UI');
       // Unload the launchd service so it doesn't respawn
       try {
-        execSync(`launchctl bootout gui/$(id -u)/com.abhishekbedi.tracklink`, { stdio: 'pipe' });
+        execSync(`launchctl bootout gui/$(id -u)/nz.tentronix.phonepad`, { stdio: 'pipe' });
         console.log('  ✓ Launchd service unloaded');
       } catch {
         // Service might not be loaded (running in foreground mode), that's fine
@@ -367,7 +367,7 @@ wss.on('connection', (ws, req) => {
   console.log(`✓ Client connected: ${clientAddr} [${sessionId}] (${activeSessions.size} active)`);
 
   // Send session info to client
-  ws.send(JSON.stringify({ type: 'session', sessionId, server: 'tracklink' }));
+  ws.send(JSON.stringify({ type: 'session', sessionId, server: 'phonepad' }));
 
   ws.isAlive = true;
   ws.on('pong', heartbeat);
@@ -609,7 +609,7 @@ httpServer.listen(PORT, () => {
 
   console.log('');
   console.log('╔══════════════════════════════════════════╗');
-  console.log('║             TrackLink Server             ║');
+  console.log('║              PhonePad Server             ║');
   console.log('╚══════════════════════════════════════════╝');
   console.log('');
   console.log(`  Local:   http://localhost:${PORT}`);

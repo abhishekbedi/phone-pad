@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Installs the TrackLink launchd service on macOS by substituting the
-// placeholders in com.abhishekbedi.tracklink.plist with the current machine's
+// Installs the PhonePad launchd service on macOS by substituting the
+// placeholders in nz.tentronix.phonepad.plist with the current machine's
 // node path and project directory, then copying it to ~/Library/LaunchAgents.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -13,9 +13,9 @@ const projectDir = join(__dirname, '..');
 
 const nodePath = process.execPath;                 // absolute path to node
 const nodeDir = dirname(nodePath);
-const templatePath = join(projectDir, 'com.abhishekbedi.tracklink.plist');
+const templatePath = join(projectDir, 'nz.tentronix.phonepad.plist');
 const targetDir = join(homedir(), 'Library', 'LaunchAgents');
-const targetPath = join(targetDir, 'com.abhishekbedi.tracklink.plist');
+const targetPath = join(targetDir, 'nz.tentronix.phonepad.plist');
 
 const template = readFileSync(templatePath, 'utf8');
 const rendered = template

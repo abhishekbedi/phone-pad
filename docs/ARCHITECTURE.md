@@ -303,35 +303,42 @@ The hot corner system is implemented in the native macOS addon and checked by th
 
 ```
 ┌──────────────────────────────────────────────┐
-│                SCREEN                         │
+│ ◤                SCREEN                     ◥ │
+│ TL                                        TR │
 │                                              │
-│  TL ┌────┐                      ┌────┐ TR   │
-│     │ 20 │                      │ 20 │      │
-│     │ px │                      │ px │      │
-│     └────┘                      └────┘      │
 │                                              │
 │               (normal area —                 │
 │                no corner detection)           │
 │                                              │
-│  BL ┌────┐                      ┌────┐ BR   │
-│     │ 20 │                      │ 20 │      │
-│     │ px │                      │ px │      │
-│     └────┘                      └────┘      │
+│                                              │
+│ BL                                        BR │
+│ ◣                                          ◢ │
 └──────────────────────────────────────────────┘
+  A corner is detected only when the cursor is
+  pushed all the way into it (pinned to both the
+  horizontal and vertical edge of the combined
+  virtual-display bounds).
 ```
 
-**Detection algorithm (native addon):**
+**Detection algorithm (native addon, `MoveMouse` in `mac_input.mm`):**
 
-1. After each `moveMouse()` call, the addon checks if the cursor position is within 20px of any screen corner
-2. If in a corner: increment the dwell counter for that corner
-3. If NOT in a corner: reset the dwell counter to 0
-4. The addon exposes `getCornerState()` → `{ corner: 1-4, dwell: N }`
+1. On each `moveMouse()` call, the addon clamps the new cursor position to the
+   combined bounds of all active displays (`CGGetActiveDisplayList` +
+   `CGDisplayBounds`).
+2. It then checks whether the clamped position sits on an edge — `atLeft`
+   (`x <= minX`), `atRight` (`x >= maxX - 1`), `atTop` (`y <= minY`),
+   `atBottom` (`y >= maxY - 1`). A corner requires both a horizontal and a
+   vertical edge: TL = left+top, TR = right+top, BL = left+bottom, BR = right+bottom.
+3. If in the same corner as the previous move: increment the dwell counter.
+   Otherwise: reset it (to `1` if newly entering a corner, else `0`).
+4. The addon exposes `getCornerState()` → `{ corner: 0-4, dwell: N }`
+   (`0` = no corner; `1` = TL, `2` = TR, `3` = BL, `4` = BR).
 
 **Server-side trigger logic:**
 
 1. After dispatching every `move` event, the server calls `platform.getCornerState()`
 2. If `dwell >= 8` (8 consecutive move events in the same corner):
-   - Look up the corner's action from `gestures.json` (e.g., `hot_corner_tl` → `"mission_control"`)
+   - Look up the corner's action from `gestures.json` (e.g., `hot_corner_tr` → `"mission_control"`)
    - Call `executeAction()` with that action
    - Call `platform.resetCornerState()` to prevent re-triggering
 3. The user must move away from the corner and back to trigger again
@@ -340,7 +347,7 @@ The hot corner system is implemented in the native macOS addon and checked by th
 
 **Why not use macOS native hot corners?**
 
-macOS native hot corners only trigger from real hardware mouse input (physical mouse or trackpad). Synthetic `CGEvent` mouse moves — which is how TrackLink moves the cursor — do **not** reliably trigger native hot corners, particularly on secondary displays in multi-monitor setups. Our app-level detection solves this by watching cursor position directly.
+macOS native hot corners only trigger from real hardware mouse input (physical mouse or trackpad). Synthetic `CGEvent` mouse moves — which is how PhonePad moves the cursor — do **not** reliably trigger native hot corners, particularly on secondary displays in multi-monitor setups. Our app-level detection solves this by watching cursor position directly.
 
 ---
 

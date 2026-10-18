@@ -9,7 +9,7 @@
   <meta name="theme-color" content="#1a1a1a">
   <link rel="manifest" href="/manifest.json">
   <link rel="apple-touch-icon" href="/icons/icon-192.svg">
-  <title>TrackLink</title>
+  <title>PhonePad</title>
   <style>
     * {
       margin: 0;
@@ -568,6 +568,36 @@
     };
 
     // ============================
+    // Persistent storage keys (PhonePad)
+    // ============================
+    const STORE = {
+      serverIp: 'phonepad_server_ip',
+      sensitivity: 'phonepad_sensitivity',
+      scrollSpeed: 'phonepad_scroll_speed',
+    };
+
+    // One-time migration from the legacy "trackpad_*" keys so existing users
+    // keep their saved server IP and settings after the rebrand to PhonePad.
+    (function migrateLegacyStorage() {
+      const legacy = {
+        phonepad_server_ip: 'trackpad_server_ip',
+        phonepad_sensitivity: 'trackpad_sensitivity',
+        phonepad_scroll_speed: 'trackpad_scroll_speed',
+      };
+      try {
+        for (const [newKey, oldKey] of Object.entries(legacy)) {
+          if (localStorage.getItem(newKey) === null) {
+            const oldVal = localStorage.getItem(oldKey);
+            if (oldVal !== null) localStorage.setItem(newKey, oldVal);
+          }
+          localStorage.removeItem(oldKey);
+        }
+      } catch (e) {
+        /* localStorage unavailable (private mode) — ignore */
+      }
+    })();
+
+    // ============================
     // State
     // ============================
     let ws = null;
@@ -657,7 +687,7 @@
           connectModal.classList.add('hidden');
           serverIpDisplay.textContent = ip;
           settingsIp.textContent = ip;
-          localStorage.setItem('trackpad_server_ip', ip);
+          localStorage.setItem(STORE.serverIp, ip);
           clearTimeout(reconnectTimer);
         };
 
@@ -696,7 +726,7 @@
       updateStatus();
       serverIpDisplay.textContent = '—';
       settingsIp.textContent = '—';
-      localStorage.removeItem('trackpad_server_ip');
+      localStorage.removeItem(STORE.serverIp);
       connectModal.classList.remove('hidden');
       settingsPanel.classList.remove('open');
     }
@@ -1270,13 +1300,13 @@
     sensitivitySlider.addEventListener('input', () => {
       CONFIG.sensitivity = parseFloat(sensitivitySlider.value);
       sensitivityValue.textContent = CONFIG.sensitivity.toFixed(1);
-      localStorage.setItem('trackpad_sensitivity', CONFIG.sensitivity);
+      localStorage.setItem(STORE.sensitivity, CONFIG.sensitivity);
     });
 
     scrollSlider.addEventListener('input', () => {
       CONFIG.scrollSpeed = parseFloat(scrollSlider.value);
       scrollValue.textContent = CONFIG.scrollSpeed.toFixed(1);
-      localStorage.setItem('trackpad_scroll_speed', CONFIG.scrollSpeed);
+      localStorage.setItem(STORE.scrollSpeed, CONFIG.scrollSpeed);
     });
 
     // ============================
@@ -1373,14 +1403,14 @@
     // ============================
     function init() {
       // Load saved settings
-      const savedSensitivity = localStorage.getItem('trackpad_sensitivity');
+      const savedSensitivity = localStorage.getItem(STORE.sensitivity);
       if (savedSensitivity) {
         CONFIG.sensitivity = parseFloat(savedSensitivity);
         sensitivitySlider.value = CONFIG.sensitivity;
         sensitivityValue.textContent = CONFIG.sensitivity.toFixed(1);
       }
 
-      const savedScroll = localStorage.getItem('trackpad_scroll_speed');
+      const savedScroll = localStorage.getItem(STORE.scrollSpeed);
       if (savedScroll) {
         CONFIG.scrollSpeed = parseFloat(savedScroll);
         scrollSlider.value = CONFIG.scrollSpeed;
@@ -1396,7 +1426,7 @@
         connect(ipParam);
       } else {
         // Check localStorage for saved IP
-        const savedIp = localStorage.getItem('trackpad_server_ip');
+        const savedIp = localStorage.getItem(STORE.serverIp);
         if (savedIp) {
           connectModal.classList.add('hidden');
           connect(savedIp);

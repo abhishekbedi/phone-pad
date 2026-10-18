@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!--
-  TrackLink launchd service definition (macOS).
+  PhonePad launchd service definition (macOS).
 
   The paths below are placeholders. The `npm run service:install` script
   substitutes them with your actual node path and project directory at install
@@ -14,7 +14,7 @@
 <plist version="1.0">
 <dict>
     <key>Label</key>
-    <string>com.abhishekbedi.tracklink</string>
+    <string>nz.tentronix.phonepad</string>
 
     <key>ProgramArguments</key>
     <array>

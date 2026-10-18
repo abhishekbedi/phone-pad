@@ -1,6 +1,6 @@
-# TrackLink — Setup Guide
+# PhonePad — Setup Guide
 
-This guide walks you through installing and running **TrackLink** on **macOS**,
+This guide walks you through installing and running **PhonePad** on **macOS**,
 **Windows**, or **Linux**, from zero to using your phone as a trackpad. Pick your
 operating system below and follow the steps in order.
 
@@ -35,7 +35,7 @@ operating system below and follow the steps in order.
 
 ## Step 0 — Install Node.js (all platforms)
 
-TrackLink needs **Node.js 18 or newer**. Check whether you already have it:
+PhonePad needs **Node.js 18 or newer**. Check whether you already have it:
 
 ```bash
 node --version
@@ -72,7 +72,7 @@ npm install
 ```
 
 `npm install` automatically compiles the native addon. If the build fails for any
-reason, TrackLink falls back to `cliclick` — install it with `brew install cliclick`.
+reason, PhonePad falls back to `cliclick` — install it with `brew install cliclick`.
 
 ### 3. Grant Accessibility permission
 
@@ -119,7 +119,7 @@ For lower-latency, smoother cursor movement:
 npm install @jitsi/robotjs
 ```
 
-If it isn't installed, TrackLink automatically uses the PowerShell fallback.
+If it isn't installed, PhonePad automatically uses the PowerShell fallback.
 
 ### 3. Start the server
 
@@ -181,7 +181,7 @@ When the server starts, it prints something like this:
 
 ```
 ╔══════════════════════════════════════════╗
-║             TrackLink Server             ║
+║             PhonePad Server             ║
 ╚══════════════════════════════════════════╝
 
   Local:   http://localhost:8888
@@ -219,7 +219,7 @@ cursor. It works just like a laptop trackpad.
 
 ### macOS (launchd service)
 
-Keep TrackLink running all the time — it starts on login and survives sleep/wake:
+Keep PhonePad running all the time — it starts on login and survives sleep/wake:
 
 ```bash
 npm run service:install     # install & start (auto-configures paths for your machine)
@@ -231,7 +231,7 @@ npm run service:uninstall   # remove it completely
 ```
 
 The install script fills in your machine's node path and project directory
-automatically, then registers the service as `com.abhishekbedi.tracklink` in launchd.
+automatically, then registers the service as `nz.tentronix.phonepad` in launchd.
 
 ### Windows / Linux
 
@@ -261,7 +261,7 @@ Requirements:
 - The build config lives in `binding.gyp`; the compiled output goes to `build/`
   (which is git-ignored).
 
-If the build fails, TrackLink still runs using the `cliclick` fallback:
+If the build fails, PhonePad still runs using the `cliclick` fallback:
 
 ```bash
 brew install cliclick
@@ -270,6 +270,11 @@ brew install cliclick
 ---
 
 ## Troubleshooting
+
+> For a comprehensive, command-driven guide to checking whether the **server**,
+> the **background service**, and the **phone app** are running — with all the CLI
+> steps per platform — see [TROUBLESHOOTING.md](TROUBLESHOOTING.md). The most
+> common quick fixes are below.
 
 **Phone can't connect**
 - Confirm both devices are on the *same* WiFi network.
@@ -294,5 +299,13 @@ brew install cliclick
 - Prefer a 5 GHz WiFi network, move closer to the router, and lower the sensitivity
   in the app's settings.
 
+---
+
+## Uninstalling
+
+To completely remove PhonePad — the server on your computer **and** the phone PWA
+(including stopping the macOS background service and clearing the saved server IP
+that makes the phone auto-reconnect) — follow the [Uninstall Guide](UNINSTALL.md).
+
 For more detail on every gesture and configuration option, see the
-[README](README.md).
+[README](../README.md).

@@ -1,6 +1,6 @@
 {
-  "name": "TrackLink",
-  "short_name": "TrackLink",
+  "name": "PhonePad",
+  "short_name": "PhonePad",
   "description": "Use your phone as a wireless trackpad for your PC, Mac, or Linux computer",
   "start_url": "/",
   "display": "standalone",

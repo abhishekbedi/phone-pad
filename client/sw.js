@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mobile-trackpad-v1';
+const CACHE_NAME = 'phonepad-v1';
 const ASSETS = [
   '/',
   '/index.html',

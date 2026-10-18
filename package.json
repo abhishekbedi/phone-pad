@@ -1,7 +1,7 @@
 {
-  "name": "tracklink",
+  "name": "@tentronix/phonepad",
   "version": "1.0.0",
-  "description": "Turn your phone into a wireless trackpad for your Mac, Windows, or Linux computer",
+  "description": "PhonePad — turn your phone into a wireless trackpad for your Mac, Windows, or Linux computer",
   "main": "server/index.js",
   "type": "module",
   "license": "MIT",
@@ -25,16 +25,17 @@
     "cross-platform"
   ],
   "scripts": {
-    "start": "launchctl bootout gui/$(id -u)/com.abhishekbedi.tracklink 2>/dev/null; lsof -ti:8888 | xargs kill -9 2>/dev/null; sleep 0.5; node server/index.js",
-    "dev": "launchctl bootout gui/$(id -u)/com.abhishekbedi.tracklink 2>/dev/null; lsof -ti:8888 | xargs kill -9 2>/dev/null; sleep 0.5; node server/index.js --dev",
+    "test": "bash tests/e2e-server.sh",
+    "start": "launchctl bootout gui/$(id -u)/nz.tentronix.phonepad 2>/dev/null; lsof -ti:8888 | xargs kill -9 2>/dev/null; sleep 0.5; node server/index.js",
+    "dev": "launchctl bootout gui/$(id -u)/nz.tentronix.phonepad 2>/dev/null; lsof -ti:8888 | xargs kill -9 2>/dev/null; sleep 0.5; node server/index.js --dev",
     "build": "node-gyp rebuild",
     "install": "node-gyp rebuild || echo 'Native addon build failed — fallback mode will be used'",
-    "service:install": "node scripts/install-service.mjs && launchctl load ~/Library/LaunchAgents/com.abhishekbedi.tracklink.plist",
-    "service:uninstall": "launchctl unload ~/Library/LaunchAgents/com.abhishekbedi.tracklink.plist && rm ~/Library/LaunchAgents/com.abhishekbedi.tracklink.plist",
-    "service:start": "launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.abhishekbedi.tracklink.plist",
-    "service:stop": "launchctl bootout gui/$(id -u)/com.abhishekbedi.tracklink",
-    "service:restart": "launchctl kickstart -k gui/$(id -u)/com.abhishekbedi.tracklink",
-    "service:status": "launchctl list | grep tracklink",
+    "service:install": "node scripts/install-service.mjs && launchctl load ~/Library/LaunchAgents/nz.tentronix.phonepad.plist",
+    "service:uninstall": "launchctl unload ~/Library/LaunchAgents/nz.tentronix.phonepad.plist && rm ~/Library/LaunchAgents/nz.tentronix.phonepad.plist",
+    "service:start": "launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/nz.tentronix.phonepad.plist",
+    "service:stop": "launchctl bootout gui/$(id -u)/nz.tentronix.phonepad",
+    "service:restart": "launchctl kickstart -k gui/$(id -u)/nz.tentronix.phonepad",
+    "service:status": "launchctl list | grep phonepad",
     "service:logs": "tail -f logs/server.log"
   },
   "dependencies": {
