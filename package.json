@@ -8,11 +8,11 @@
   "author": "Abhishek Bedi",
   "repository": {
     "type": "git",
-    "url": "https://github.com/abhishekbedi/tracklink.git"
+    "url": "https://github.com/abhishekbedi/phone-pad.git"
   },
-  "homepage": "https://github.com/abhishekbedi/tracklink#readme",
+  "homepage": "https://github.com/abhishekbedi/phone-pad#readme",
   "bugs": {
-    "url": "https://github.com/abhishekbedi/tracklink/issues"
+    "url": "https://github.com/abhishekbedi/phone-pad/issues"
   },
   "keywords": [
     "trackpad",

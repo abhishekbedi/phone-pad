@@ -18,8 +18,8 @@ troubleshooting), see [SETUP.md](SETUP.md).
 ## 1. Clone and install
 
 ```bash
-git clone https://github.com/abhishekbedi/tracklink.git
-cd tracklink
+git clone https://github.com/abhishekbedi/phone-pad.git
+cd phone-pad
 npm install
 ```
 

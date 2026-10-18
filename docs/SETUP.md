@@ -66,8 +66,8 @@ xcode-select --install
 ### 2. Clone and install
 
 ```bash
-git clone https://github.com/abhishekbedi/tracklink.git
-cd tracklink
+git clone https://github.com/abhishekbedi/phone-pad.git
+cd phone-pad
 npm install
 ```
 
@@ -103,8 +103,8 @@ Then jump to [Connecting your phone](#connecting-your-phone).
 Open **PowerShell** and run:
 
 ```powershell
-git clone https://github.com/abhishekbedi/tracklink.git
-cd tracklink
+git clone https://github.com/abhishekbedi/phone-pad.git
+cd phone-pad
 npm install
 ```
 
@@ -155,8 +155,8 @@ sudo dnf install xdotool
 ### 2. Clone and install
 
 ```bash
-git clone https://github.com/abhishekbedi/tracklink.git
-cd tracklink
+git clone https://github.com/abhishekbedi/phone-pad.git
+cd phone-pad
 npm install
 ```
 

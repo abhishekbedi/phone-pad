@@ -11,8 +11,8 @@ By participating in this project you agree to abide by our
 
 ## Ways to Contribute
 
-- **Report bugs** — Open a [GitHub issue](https://github.com/abhishekbedi/tracklink/issues) describing the problem, your OS, and steps to reproduce.
-- **Request features** — Open a [GitHub issue](https://github.com/abhishekbedi/tracklink/issues) describing the feature and your use case.
+- **Report bugs** — Open a [GitHub issue](https://github.com/abhishekbedi/phone-pad/issues) describing the problem, your OS, and steps to reproduce.
+- **Request features** — Open a [GitHub issue](https://github.com/abhishekbedi/phone-pad/issues) describing the feature and your use case.
 - **Improve docs** — Fix typos, clarify setup steps, add troubleshooting tips.
 - **Write code** — Fix bugs, add gestures, or improve platform support.
 
@@ -22,8 +22,8 @@ By participating in this project you agree to abide by our
 Tools on macOS, `xdotool` on Linux). See the [Setup Guide](SETUP.md) for full details.
 
 ```bash
-git clone https://github.com/abhishekbedi/tracklink.git
-cd tracklink
+git clone https://github.com/abhishekbedi/phone-pad.git
+cd phone-pad
 npm install          # compiles the native macOS addon automatically
 npm run dev          # start the server with verbose logging
 ```
@@ -106,4 +106,4 @@ Keep PRs focused on a single concern where possible — it makes review faster.
 ## Questions
 
 Not sure about something? Open an
-[issue](https://github.com/abhishekbedi/tracklink/issues) and ask. We're happy to help.
+[issue](https://github.com/abhishekbedi/phone-pad/issues) and ask. We're happy to help.

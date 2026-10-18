@@ -2,6 +2,22 @@
 
 A running changelog of milestones for TrackLink. Newest entries first.
 
+## 2026-10-18 19:56 — Migrated repo references to abhishekbedi/phone-pad + pushed
+
+- What changed: updated all GitHub repo-slug references from
+  `abhishekbedi/tracklink` to **`abhishekbedi/phone-pad`** (the new repository),
+  including clone URLs, `cd phone-pad`, the README tree root, the CI badge, the
+  `package.json` repository/homepage/bugs URLs, the issue-chooser links, and the
+  config UI GitHub link. The scoped npm package name (`@tentronix/phonepad`) is
+  independent of the repo slug and was left unchanged; lockfile stays in sync.
+- Git: repointed `origin` from the old `mac_mouse` repo to
+  `https://github.com/abhishekbedi/phone-pad.git`, set branch `main`, and pushed.
+- Verification: no `abhishekbedi/tracklink` / `cd tracklink` left in active files;
+  `package.json` valid; `npm test` 17/17 pass.
+- Files touched: `README.md`, `package.json`, `docs/SETUP.md`,
+  `docs/QUICKSTART.md`, `docs/CONTRIBUTING.md`, `.github/ISSUE_TEMPLATE/config.yml`,
+  `client/config.html`, `Progress.md`.
+
 ## 2026-10-18 16:24 — GitHub issue/PR templates + CI workflow
 
 - What changed:

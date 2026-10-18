@@ -1,8 +1,8 @@
 blank_issues_enabled: true
 contact_links:
   - name: Question / discussion
-    url: https://github.com/abhishekbedi/tracklink/discussions
+    url: https://github.com/abhishekbedi/phone-pad/discussions
     about: Ask a question or start a discussion instead of filing an issue.
   - name: Setup & troubleshooting
-    url: https://github.com/abhishekbedi/tracklink/blob/main/docs/TROUBLESHOOTING.md
+    url: https://github.com/abhishekbedi/phone-pad/blob/main/docs/TROUBLESHOOTING.md
     about: Check the troubleshooting guide for common server/service/app issues.

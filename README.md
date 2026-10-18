@@ -12,7 +12,7 @@ streamed over your local WiFi with **zero cloud**, **zero accounts**, and **zero
 [![Platform: macOS | Linux | Windows](https://img.shields.io/badge/Platform-macOS%20%7C%20Linux%20%7C%20Windows-blue.svg)](docs/SETUP.md)
 [![Client: PWA](https://img.shields.io/badge/Client-PWA%20(iOS%20%26%20Android)-orange.svg)](#-install-the-phone-app)
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-339933.svg?logo=node.js&logoColor=white)](https://nodejs.org)
-[![CI](https://github.com/abhishekbedi/tracklink/actions/workflows/ci.yml/badge.svg)](https://github.com/abhishekbedi/tracklink/actions/workflows/ci.yml)
+[![CI](https://github.com/abhishekbedi/phone-pad/actions/workflows/ci.yml/badge.svg)](https://github.com/abhishekbedi/phone-pad/actions/workflows/ci.yml)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](docs/CONTRIBUTING.md)
 
 [**Quick Start**](#-quick-start) · [**Setup Guide**](docs/SETUP.md) · [**Gestures**](#-gestures) · [**Troubleshooting**](docs/TROUBLESHOOTING.md) · [**Contributing**](docs/CONTRIBUTING.md)
@@ -46,8 +46,8 @@ streamed over your local WiFi with **zero cloud**, **zero accounts**, and **zero
 > **Prerequisite:** [Node.js 18+](https://nodejs.org), and your phone + computer on the **same WiFi**.
 
 ```bash
-git clone https://github.com/abhishekbedi/tracklink.git
-cd tracklink
+git clone https://github.com/abhishekbedi/phone-pad.git
+cd phone-pad
 npm install
 npm start
 ```
@@ -233,7 +233,7 @@ The client sends JSON messages to the server:
 ## 📁 Project Structure
 
 ```
-tracklink/
+phone-pad/
 ├── client/                  # PWA mobile client
 │   ├── index.html           # Main app (self-contained, inline JS/CSS)
 │   ├── config.html          # Desktop config UI (gesture editor, QR code)
@@ -305,7 +305,7 @@ npm run build      # node-gyp rebuild → build/Release/mac_input.node
 PhonePad is open source and contributions are very welcome — whether it's a bug
 report, a new gesture, a platform fix, or a docs tweak.
 
-- 🐛 **Found a bug?** [Open an issue.](https://github.com/abhishekbedi/tracklink/issues)
+- 🐛 **Found a bug?** [Open an issue.](https://github.com/abhishekbedi/phone-pad/issues)
 - 💡 **Have an idea?** Start a discussion or open a feature request.
 - 🔧 **Want to build?** Read the [Contributing Guide](docs/CONTRIBUTING.md) and the
   [Architecture overview](docs/ARCHITECTURE.md) to get oriented fast.
